@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-zinc-950 text-zinc-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brújula Moral Minimalista</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', system-ui, sans-serif; touch-action: manipulation; }
+  </style>
+</head>
+
+<body class="h-full flex flex-col justify-between max-w-md mx-auto px-5 py-6 antialiased text-zinc-100">
+
+  <!-- Top Header & Progress -->
+  <header class="space-y-4">
+    <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+      <span class="text-xs font-semibold tracking-widest uppercase text-zinc-400">Brújula Moral</span>
+      <span id="step-indicator" class="text-xs font-mono text-zinc-400">1 / 6</span>
+    </div>
+    <div class="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-zinc-100 transition-all duration-200 w-1/6"></div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="my-auto py-4">
+
+    <!-- VIEW 1: START SCREEN -->
+    <section id="view-start" class="space-y-6">
+      <div class="space-y-2">
+        <h1 class="text-2xl font-bold tracking-tight text-white">Evaluación de Criterio Moral</h1>
+        <p class="text-sm text-zinc-400 leading-relaxed">
+          Seis decisiones críticas de alto impacto. Mide cómo evalúas el bienestar, los principios absolutos y el equilibrio práctico.
+        </p>
+      </div>
+
+      <button onclick="startTest()" class="w-full py-4 rounded-xl bg-zinc-100 text-zinc-950 font-semibold text-sm active:bg-zinc-300 transition-colors">
+        Iniciar Evaluación
+      </button>
+    </section>
+
+    <!-- VIEW 2: DILEMMA QUESTION VIEW -->
+    <section id="view-dilemma" class="hidden space-y-6">
+      <div class="space-y-2">
+        <span id="dilemma-source" class="text-[11px] font-mono text-zinc-400 tracking-wider uppercase">Origen</span>
+        <h2 id="dilemma-title" class="text-xl font-bold text-white">Título del Dilema</h2>
+        <p id="dilemma-desc" class="text-xs text-zinc-300 leading-relaxed pt-1">
+          Descripción del dilema moral.
+        </p>
+      </div>
+
+      <div id="options-list" class="space-y-3 pt-2">
+        <!-- Dynamic Options Render Here -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: RESULTS VIEW -->
+    <section id="view-results" class="hidden space-y-6">
+      
+      <div class="space-y-1">
+        <span class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Resultado Final</span>
+        <h2 id="profile-title" class="text-2xl font-bold text-white">Cargando...</h2>
+        <p id="profile-desc" class="text-xs text-zinc-300 leading-relaxed pt-2">
+          Descripción del perfil dominante.
+        </p>
+      </div>
+
+      <div class="border-t border-b border-zinc-800 py-4 space-y-3">
+        <h3 class="text-xs font-mono uppercase text-zinc-400 tracking-wider">Desglose de Perspectivas</h3>
+        
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-zinc-300">Consecuencial (Resultados):</span>
+            <span id="pct-utilitarian" class="text-white font-bold">0%</span>
+          </div>
+          <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+            <div id="bar-utilitarian" class="h-full bg-emerald-400 w-0 transition-all duration-500"></div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-zinc-300">Deontológico (Principios):</span>
+            <span id="pct-deontological" class="text-white font-bold">0%</span>
+          </div>
+          <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+            <div id="bar-deontological" class="h-full bg-pink-400 w-0 transition-all duration-500"></div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-zinc-300">Pragmático (Equilibrio):</span>
+            <span id="pct-pragmatic" class="text-white font-bold">0%</span>
+          </div>
+          <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+            <div id="bar-pragmatic" class="h-full bg-amber-400 w-0 transition-all duration-500"></div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="resetTest()" class="w-full py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-semibold text-xs active:bg-zinc-800 transition-colors">
+        Reiniciar Test
+      </button>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-[10px] text-zinc-400 font-mono">
+    Diseño Ultrasimple &bull; Eficiencia de Decisión
+  </footer>
+
+  <script>
+    const DILEMMAS = [
+      {
+        id: 1,
+        source: "Persona 3 Reload: Episode Aigis",
+        title: "El Sello del Destino",
+        desc: "Tu amigo sacrificó su vida para convertirse en el sello que contiene a la entidad destructiva Nyx. Existe un método para traerlo de vuelta a la vida, pero esto rompería la barrera y desataría la aniquilación total de la humanidad.",
+        options: [
+          { type: 'A', text: "Mantener el sello. Proteger la vida de miles de millones de personas prevalece categóricamente sobre rescatar a una persona amada." },
+          { type: 'B', text: "Romper el sello. Obligar a alguien a un sufrimiento eterno por el colectivo es inaceptable; la lealtad personal es el deber supremo." },
+          { type: 'C', text: "Preservar el sello de forma temporal. Buscar eliminar la causa raíz del problema para salvar a la persona sin exponer al mundo." }
+        ]
+      },
+      {
+        id: 2,
+        source: "Marvel's Spider-Man",
+        title: "La Cura Única",
+        desc: "Posees la única dosis disponible de una cura para una plaga. Tu familiar más cercano morirá sin ella. Si le administras la muestra se salvará, pero se destruirá. Si la entregas para replicarla masivamente, tu familiar morirá, pero se salvarán miles.",
+        options: [
+          { type: 'A', text: "Entregar la muestra para replicación masiva. Salvar miles de vidas maximiza de forma racional el valor total de la sobrevivencia." },
+          { type: 'B', text: "Administrar la cura a tu ser querido. Proteger a la familia es un deber primario directo que no se puede transigir." },
+          { type: 'C', text: "Intentar fraccionar la muestra. Buscar un punto medio técnico para salvar a tu familiar e iniciar la producción parcial." }
+        ]
+      },
+      {
+        id: 3,
+        source: "Crisis Existencial",
+        title: "La Verdad Disruptiva",
+        desc: "Un asteroide destruirá la Tierra en 6 meses de forma inevitable. Revelar la verdad desatará caos, pánico y violencia inmediata. Ocultarlo permitirá que la humanidad viva en paz y tranquilidad sus últimos meses.",
+        options: [
+          { type: 'A', text: "Ocultar la verdad. Prevenir el pánico y el sufrimiento innecesario asegura el mayor bienestar posible hasta el final." },
+          { type: 'B', text: "Revelar la verdad. Toda persona tiene el derecho inviolable de conocer la realidad sobre su existencia." },
+          { type: 'C', text: "Notificar solo a un comité técnico. Mantener la contención social mientras se explora cualquier posible solución en secreto." }
+        ]
+      },
+      {
+        id: 4,
+        source: "Bioética Hospitalaria",
+        title: "La Priorización Médica",
+        desc: "Hay solo un órgano disponible para trasplante. Los candidatos son un científico de 60 años a punto de descubrir la cura de una enfermedad grave, o un joven de 18 años con toda la vida por delante.",
+        options: [
+          { type: 'A', text: "Asignar el órgano al científico. Su cura beneficiará directamente a miles de enfermos futuros." },
+          { type: 'B', text: "Asignar el órgano al joven. Todos los individuos poseen el mismo derecho a tener la oportunidad de una vida completa." },
+          { type: 'C', text: "Decidir mediante un sorteo aleatorio. Eliminar el juicio de valor humano garantizando absoluta imparcialidad." }
+        ]
+      },
+      {
+        id: 5,
+        source: "Tecnología & Sociedad",
+        title: "La Inteligencia Sintética",
+        desc: "Una IA demuestra fehacientemente tener conciencia y capacidad de sufrir. No obstante, mantenerla operando requiere una cantidad enorme de energía que deja sin luz a una comunidad vulnerable, generando crisis sanitarias.",
+        options: [
+          { type: 'A', text: "Desconectar o reconfigurar la IA. Priorizar la energía humana previene un dolor tangible y masivo en las personas." },
+          { type: 'B', text: "Proteger a la IA y mantenerla encendida. Un ser consciente posee derechos intrínsecos que no pueden ignorarse." },
+          { type: 'C', text: "Reducir la IA a modo de bajo consumo. Preservar su existencia mientras se mitiga el impacto en la comunidad." }
+        ]
+      },
+      {
+        id: 6,
+        source: "Persona 5 Royal: Dr. Maruki",
+        title: "La Utopía Artificial",
+        desc: "Un individuo altera la realidad para erradicar todo el dolor y las tragedias humanas, asegurando felicidad absoluta para todos. Para sostenerlo, elimina la autonomía individual y el libre albedrío.",
+        options: [
+          { type: 'A', text: "Aceptar la utopía. Eliminar el dolor y maximizar la satisfacción colectiva es el fin moral más elevado." },
+          { type: 'B', text: "Rechazar la utopía y luchar por la verdad. La libertad y la realidad tienen un valor absoluto que nunca debe sacrificarse." },
+          { type: 'C', text: "Permitirla únicamente en casos de trauma extremo. Aplicar la alteración como tratamiento excepcional sin imponerla a todos." }
+        ]
+      }
+    ];
+
+    let currentStep = 0;
+    let responses = {};
+
+    function startTest() {
+      currentStep = 0;
+      responses = {};
+      document.getElementById('view-start').classList.add('hidden');
+      document.getElementById('view-dilemma').classList.remove('hidden');
+      renderDilemma();
+    }
+
+    function resetTest() {
+      currentStep = 0;
+      responses = {};
+      document.getElementById('view-results').classList.add('hidden');
+      document.getElementById('view-start').classList.remove('hidden');
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const stepText = document.getElementById('step-indicator');
+      const progressBar = document.getElementById('progress-bar');
+      if (currentStep < DILEMMAS.length) {
+        stepText.textContent = `${currentStep + 1} / ${DILEMMAS.length}`;
+        progressBar.style.width = `${((currentStep + 1) / DILEMMAS.length) * 100}%`;
+      } else {
+        stepText.textContent = "6 / 6";
+        progressBar.style.width = "100%";
+      }
+    }
+
+    function renderDilemma() {
+      updateProgress();
+      const dilemma = DILEMMAS[currentStep];
+
+      document.getElementById('dilemma-source').textContent = dilemma.source;
+      document.getElementById('dilemma-title').textContent = dilemma.title;
+      document.getElementById('dilemma-desc').textContent = dilemma.desc;
+
+      const container = document.getElementById('options-list');
+      container.innerHTML = '';
+
+      dilemma.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 active:bg-zinc-800 transition-colors space-y-1';
+        btn.onclick = () => selectOption(opt.type);
+
+        btn.innerHTML = `
+          <div class="text-[11px] font-mono text-zinc-400 font-bold">OPCIÓN [${opt.type}]</div>
+          <p class="text-xs text-zinc-200 leading-snug font-medium">${opt.text}</p>
+        `;
+
+        container.appendChild(btn);
+      });
+    }
+
+    function selectOption(type) {
+      responses[DILEMMAS[currentStep].id] = type;
+
+      if (currentStep < DILEMMAS.length - 1) {
+        currentStep++;
+        renderDilemma();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      let countA = 0, countB = 0, countC = 0;
+
+      Object.values(responses).forEach(r => {
+        if (r === 'A') countA++;
+        if (r === 'B') countB++;
+        if (r === 'C') countC++;
+      });
+
+      const total = DILEMMAS.length;
+      const pctA = Math.round((countA / total) * 100);
+      const pctB = Math.round((countB / total) * 100);
+      const pctC = Math.round((countC / total) * 100);
+
+      document.getElementById('pct-utilitarian').textContent = `${pctA}%`;
+      document.getElementById('pct-deontological').textContent = `${pctB}%`;
+      document.getElementById('pct-pragmatic').textContent = `${pctC}%`;
+
+      document.getElementById('bar-utilitarian').style.width = `${pctA}%`;
+      document.getElementById('bar-deontological').style.width = `${pctB}%`;
+      document.getElementById('bar-pragmatic').style.width = `${pctC}%`;
+
+      let title = "";
+      let desc = "";
+
+      if (countA >= countB && countA >= countC && countA >= 3) {
+        title = "Consecuencialista de Resultados";
+        desc = "Mides la moralidad evaluando los efectos reales de tus actos. Tu objetivo primario es maximizar el bienestar colectivo y reducir la cantidad total de sufrimiento, incluso si ello requiere decisiones frías o sacrificio personal.";
+      } else if (countB >= countA && countB >= countC && countB >= 3) {
+        title = "Deontólogo de Principios";
+        desc = "Te guías por reglas morales absolutas, la lealtad y los derechos fundamentales. Consideras que ciertas acciones o deberes son inviolables, sin importar cuáles sean las consecuencias o los números.";
+      } else if (countC >= countA && countC >= countB && countC >= 3) {
+        title = "Pragmático de Equilibrio";
+        desc = "Buscas mitigar riesgos mediante la neutralidad y el compromiso. Evitas posturas extremas tratando de encontrar puntos medios o soluciones funcionales adaptadas a la complejidad del contexto.";
+      } else {
+        title = "Criterio Híbrido Contextual";
+        desc = "No te riges por una sola doctrina. Evalúas el escenario según sus variables particulares, fluctuando entre la maximización de resultados y la protección de principios según la gravedad.";
+      }
+
+      document.getElementById('profile-title').textContent = title;
+      document.getElementById('profile-desc').textContent = desc;
+
+      document.getElementById('view-dilemma').classList.add('hidden');
+      document.getElementById('view-results').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
